@@ -40,11 +40,11 @@ inventory = []
 
 #a dictionary linking a room to other room positions
 rooms = {
-           1 : { "name" : "Living Room" ,
+           1 : { "name" : "Upstairs Living Room" ,
                  "description" : "-" ,
-                 "north" : -
-                 "east" : -,
-                 "south" : -,
+                 "north" : 6
+                 "east" : 8,
+                 "south" : 7,
                  "west" : 2 } ,
 
            2 : { "name" : "Small Hallway in Living Room" ,
@@ -59,7 +59,7 @@ rooms = {
                  "description" : "-" ,
                  "south" : 2 } ,
 
-           4 : { "name" : "Bathroom" ,
+           4 : { "name" : "Upstairs Bathroom" ,
                  "description" : "-" ,
                  "east" : 2 } ,
            
@@ -69,6 +69,25 @@ rooms = {
 
            6 : { "name" : "Front Yard" ,
                  "description" : "-" ,
+                 "south" : 1 }
+
+           7 : { "name" : "Back Yard" ,
+                 "description" : "-" ,
+                 "north" : 1 }
+
+           8 : { "name" : "Upstairs Kitchen" ,
+                 "description" : "-" ,
+                 "south" : 9,
+                 "west" : 1 }
+           
+           9 : { "name" : "Stairwell" ,
+                 "description" : "-" ,
+                 "up" : 8,
+                 "down" : 10 }
+
+           10 : { "name" : "Downstairs Kitchen" ,
+                 "description" : "-" ,
+                 "north" : 9 }
                  
 
         }
