@@ -4,8 +4,8 @@ def Intro():
     print("One Night at Quinn's")
     print("====================================================================================================================================================================================================")
     Commands()
-    Location()
     Event()
+    Location()
     Description()
     Directions()
 
@@ -55,7 +55,10 @@ def Description():
 def Directions():
     #print directions out of current room.
     print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print(rooms[currentRoom]["directions"])
+    if "directions" in rooms[currentRoom]:
+        print(rooms[currentRoom]["directions"])
+    if "permdirections" in rooms[currentRoom]:
+        print(rooms[currentRoom]["permdirections"])
     print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
 def Search():
@@ -125,7 +128,12 @@ rooms = {
                  "description" : "The back yard is a bit of a mess." ,
                  "directions" : "There is only one door, the sliding glass door leading back into the house to the North." ,
                  "item" : "shovel" ,
-                 "north" : 1 } ,
+                 "north" : 7.5 } ,
+
+           7.5 : {"name" : "the Back Yard" ,
+                  "permdirections" : "Do you want to go left, into the living room , or right, into the garage?",
+                  "left" : 1,
+                  "right" : 10 } ,
 
            8 : { "name" : "the Upstairs Kitchen" ,
                  "first" : "Yes" ,
@@ -205,7 +213,11 @@ events = {
                 "event" : "Quinn seems surprised to see you back so soon. He was washing his hands. \"Uh.. did you talk to Gabby? I didn't hear you go outside...\""} ,
 
            5 : {"name" : "Signs of Digging" ,
-                "event" : "It looks like someone has been digging here. When they heard you opening the door they must have ran off..."}
+                "event" : "It looks like someone has been digging here. When they heard you opening the door they must have ran off..."} ,
+
+           6 : {"name" : "Went Outside First" ,
+                "event" : "As you head back inside you see that Quinn has come into the living room. \n\"Oh it's you! I wasn't sure who it was that walked past.\"\n\"I just tried to call the police again but no calls are going through...\"\n\"You just came from outside.. Did you see Gabby by chance?\""}
+
 
         }
 
@@ -222,14 +234,29 @@ while True:
     #set the chain of events.
     if currentEvent == 1:
         rooms[8].update({"event" : 2})
+        rooms[6].update({"event" : 3})
+        rooms[10].update({"event" : 3})
+        rooms[7].update({"event" : 5})
     elif currentEvent == 2:
         rooms[1].update({"event" : 3})
+        rooms[8].update({"event" : 3})
     elif currentEvent == 3:
         rooms[8].update({"event" : 4})
-        rooms[7].update({"event" : 5})
+        if "event" in rooms[1]:
+            del rooms[1]["event"]
+        elif "event" in rooms[10]:
+            del room[10]["event"]
+        elif "event" in rooms[6]:
+            del room[6]["event"]
+        elif "event" in rooms[8]:
+            del room[8]["event"]
     elif currentEvent == 5:
+        rooms[1].update({"event" : 6})
+        rooms[10].update({"event" : 6})
         if "event" in rooms[8]:
             del rooms[8]["event"]
+        elif "event" in rooms[6]:
+            del rooms[6]["event"]
     
     #get the player's next 'move'
     move = input(">").lower().split()
@@ -278,6 +305,10 @@ while True:
                 Description()
                 Directions()
                 del rooms[currentRoom]["first"]
+            #check to see if there are permenant directions.
+            if "permdirections" in rooms[currentRoom]:
+                #if true, print directions out of the room.
+                Directions()
             #check to see if there is an event in the room the player hasn't already seen.
             if "event" in rooms[currentRoom]:
                 #if true, set current event to this one.
