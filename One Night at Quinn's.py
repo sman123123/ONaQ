@@ -18,6 +18,7 @@ def Commands():
     print("'where' - Get current location.")
     print("'bag' - Get list of your Inventory.")
     print("'search' - Search the room more thouroughly for items.")
+    print("'event' - Get last event and the location that it happened.")
     print("'go [direction]'")
     print("'take [item]'")
     print("====================================================================================================================================================================================================")
@@ -73,6 +74,16 @@ def Event():
     print(events[currentEvent]["event"])
     print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
+#create list of suspects.
+class Suspect:
+    def __init__(self, name, motive, alibi, clues):
+        self.name = name
+        self.motive = motive
+        self.alibi = alibi
+        self.clues = clues
+
+Russell = Suspect("Russell", "blank motive", "blank alibi", "blank clues")
+Quinn = Suspect("Quinn", "blank motive", "blank alibi", "blank clues")
 
 #an inventory, which is initially empty.
 inventory = []
@@ -221,7 +232,7 @@ events = {
 
         }
 
-#start the player in room 6.
+#start the player in room 1.
 currentRoom = 1
 #set the game to the first Event
 currentEvent = 1
