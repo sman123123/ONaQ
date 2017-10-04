@@ -1,15 +1,17 @@
 def Intro():
     #print a main menu and instructions.
-    print("============================================")
+    print("====================================================================================================================================================================================================")
     print("One Night at Quinn's")
-    print("============================================")
+    print("====================================================================================================================================================================================================")
     Commands()
     Location()
+    Event()
     Description()
     Directions()
 
 
 def Commands():
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("Commands:")
     print("'help' - Get list of commands.")
     print("'look' - Get description of surroundings.")
@@ -17,35 +19,57 @@ def Commands():
     print("'bag' - Get list of your Inventory.")
     print("'search' - Search the room more thouroughly for items.")
     print("'go [direction]'")
-    print("'get [item]'")
+    print("'take [item]'")
+    print("====================================================================================================================================================================================================")
 
 def Location():
     #print your current location.
-    print("--------------------------------------------")
+    print("====================================================================================================================================================================================================")
     print("You are in " + rooms[currentRoom]["name"] + ".")
     #print item if there is one.
     if "item" in rooms[currentRoom]:
         print("You see a " + rooms[currentRoom]["item"] + ".")
-    print("--------------------------------------------")
+    #print the people in the room if there are any.
+    if "people" in rooms[currentRoom]:
+        if len(rooms[currentRoom]["people"]) == 1:
+            print(str(rooms[currentRoom]["people"]) + " is in the room.")
+        if len(rooms[currentRoom]["people"]) >= 2:
+            print(str(rooms[currentRoom]["people"]) + " are in the room.")
+    else:
+        print("No one is in the room with you.")
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
 def Inventory():
     #print your inventory.
-    print("--------------------------------------------")
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print("Inventory : " + str(inventory))
-    print("--------------------------------------------")
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
 
 def Description():
     #print description of current room.
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print(rooms[currentRoom]["description"])
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
 def Directions():
     #print directions out of current room.
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print(rooms[currentRoom]["directions"])
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
 def Search():
     #print what they find by searching.
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
     print(rooms[currentRoom]["search"])
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+
+def Event():
+    #print the last event.
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+    print(events[currentEvent]["event"])
+    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
+
 
 #an inventory, which is initially empty.
 inventory = []
@@ -53,8 +77,8 @@ inventory = []
 #a dictionary linking a room to other room positions, as well as what each room contains.
 rooms = {
            1 : { "name" : "the Upstairs Living Room" ,
-                 "description" : "You see a large brown sectional wrapping around an area pointing at a computer monitor that is connected to a TV. Both are displaying the same random video for some reason." ,
-                 "directions" : "There are two doors, the one that leads to the front yard is to the North and the back yard is to the South. The kitchen is to the East and there is a small hallway leading West to the bathroom and upstairs bedrooms." ,
+                 "description" : "You see a large brown sectional wrapping around an area pointing at a TV and a computer monitor. Both are displaying the same random video for some reason." ,
+                 "directions" : "There are two doors, the one that leads to the front yard is to the North and the back yard is to the South. \nThe kitchen is to the East and there is a small hallway leading West to the bathroom and upstairs bedrooms." ,
                  "north" : 6,
                  "east" : 8,
                  "south" : 7,
@@ -106,6 +130,7 @@ rooms = {
            8 : { "name" : "the Upstairs Kitchen" ,
                  "first" : "Yes" ,
                  "description" : "A fairly clean kitchen. There is a sink, a stove, and some cupboards and drawers." ,
+                 "people" : ["Quinn"] ,
                  "directions" : "There is a door along the East wall that leads out into the garage. The living room is to the West and there is a staircase leading down." ,
                  "search" : "You find a knife in a drawer." ,
                  "search item" : "knife" ,
@@ -165,7 +190,26 @@ rooms = {
 
         }
 
-#start the player in room 1.
+#a dictionary of the Events in the game.
+events = {
+           1 : {"name" : "Introduction" ,
+                "event" : "You arrive at Quinn's house to a scene of misery and despair. Poor Stuart has been murdered. \nYou are the only person who has arrived at the house since it happened. Anyone could be the murderer. \nYou are standing in the living room of the house. You have been told that all calls to the police haven't been going through."} ,
+
+           2 : {"name" : "Greeting" ,
+                "event" : "As you walk into the kitchen you find Quinn with his head in his hands. He looks up at you suddenly, it is clear he is distraught. Fresh tears run down his face. \n\"How could this have happened!?\" he shouts. \"I can't hardly think right now, go talk to Gabby out back.\""} ,
+
+           3 : {"name" : "Strange sounds from out back" ,
+                "event" : "You hear what sounds like someone digging coming from the back yard."} ,
+
+           4 : {"name" : "Quinn acting strange" ,
+                "event" : "Quinn seems surprised to see you back so soon. He was washing his hands. \"Uh.. did you talk to Gabby? I didn't hear you go outside...\""} ,
+
+           5 : {"name" : "Signs of Digging" ,
+                "event" : "It looks like someone has been digging here. When they heard you opening the door they must have ran off..."}
+
+        }
+
+#start the player in room 6.
 currentRoom = 1
 #set the game to the first Event
 currentEvent = 1
@@ -174,11 +218,20 @@ Intro()
 
 #loop infinitely
 while True:
+
+    #set the chain of events.
+    if currentEvent == 1:
+        rooms[8].update({"event" : 2})
+    elif currentEvent == 2:
+        rooms[1].update({"event" : 3})
+    elif currentEvent == 3:
+        rooms[8].update({"event" : 4})
+        rooms[7].update({"event" : 5})
+    elif currentEvent == 5:
+        if "event" in rooms[8]:
+            del rooms[8]["event"]
     
     #get the player's next 'move'
-    #.split() breaks it up into a list array
-    #eg typing 'go east' would give the list
-    #['go','east']
     move = input(">").lower().split()
 
     #if they type 'help'
@@ -225,12 +278,18 @@ while True:
                 Description()
                 Directions()
                 del rooms[currentRoom]["first"]
+            #check to see if there is an event in the room the player hasn't already seen.
+            if "event" in rooms[currentRoom]:
+                #if true, set current event to this one.
+                currentEvent = rooms[currentRoom]["event"]
+                Event()
+                del rooms[currentRoom]["event"]
         #if there is no door (link) to the new room
         else:
             print("You can't go that way!")
 
-    #if they type 'get' or 'take' first
-    if move[0] == "get" or "take":
+    #if they type 'take' first
+    if move[0] == "take":
         #check if the room contains an item, and the item is the one they want to get
         if "item" in rooms[currentRoom] and move[1] == rooms[currentRoom]["item"]:
             #add the item to their inventory
@@ -253,4 +312,4 @@ while True:
         #otherwise, if the item isn't there to get
         else:
             #tell them they can't get it
-            print("There isn't a " + move[1] + " to get!")
+            print("There isn't a " + move[1] + " to take!")
