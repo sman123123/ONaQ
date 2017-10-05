@@ -62,12 +62,6 @@ def Directions():
         print(rooms[currentRoom]["permdirections"])
     print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
 
-def Search():
-    #print what they find by searching.
-    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print(rooms[currentRoom]["search"])
-    print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
-
 def Event():
     #print the last event.
     print("----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------")
@@ -96,7 +90,9 @@ rooms = {
                  "north" : 6,
                  "east" : 8,
                  "south" : 7,
-                 "west" : 2 } ,
+                 "west" : 2,
+                 "object1" : "lamp" ,
+                 "obj1des" : "You see a lamp on an end table between the couches."} ,
 
            2 : { "name" : "the Small Hallway in Living Room" ,
                  "first" : "Yes" ,
@@ -123,8 +119,8 @@ rooms = {
                  "first" : "Yes" ,
                  "description" : "Tristan's room is full of his stuff, The general things you would expect to find in a room." ,
                  "directions" : "There is only one door, leading North back to the hallway." ,
-                 "search" : "You find a briefcase with a combination lock keeping it closed." ,
-                 "search item" : "briefcase" ,
+                 "search1" : "You find a briefcase with a combination lock keeping it closed." ,
+                 "sitem1" : "briefcase" ,
                  "north" : 2 } ,
 
            6 : { "name" : "the Front Yard" ,
@@ -138,7 +134,7 @@ rooms = {
                  "first" : "Yes" ,
                  "description" : "The back yard is a bit of a mess." ,
                  "directions" : "There is only one door, the sliding glass door leading back into the house to the North." ,
-                 "item" : "shovel" ,
+                 "item1" : "shovel" ,
                  "north" : 7.5 } ,
 
            7.5 : {"name" : "the Back Yard" ,
@@ -149,10 +145,11 @@ rooms = {
            8 : { "name" : "the Upstairs Kitchen" ,
                  "first" : "Yes" ,
                  "description" : "A fairly clean kitchen. There is a sink, a stove, and some cupboards and drawers." ,
-                 "people" : ["Quinn"] ,
+                 "people" : [Quinn.name, Russell.name] ,
                  "directions" : "There is a door along the East wall that leads out into the garage. The living room is to the West and there is a staircase leading down." ,
-                 "search" : "You find a knife in a drawer." ,
-                 "search item" : "knife" ,
+                 "search" : 1,
+                 "search1" : "drawer" ,
+                 "sitem1" : "knife" ,
                  "down" : 9,
                  "east" : 10,
                  "west" : 1 } ,
@@ -256,18 +253,23 @@ while True:
         if "event" in rooms[1]:
             del rooms[1]["event"]
         elif "event" in rooms[10]:
-            del room[10]["event"]
+            del rooms[10]["event"]
         elif "event" in rooms[6]:
-            del room[6]["event"]
+            del rooms[6]["event"]
         elif "event" in rooms[8]:
-            del room[8]["event"]
+            del rooms[8]["event"]
     elif currentEvent == 5:
         rooms[1].update({"event" : 6})
         rooms[10].update({"event" : 6})
+        rooms[1].update({"people" : [Quinn.name]})
         if "event" in rooms[8]:
             del rooms[8]["event"]
         elif "event" in rooms[6]:
             del rooms[6]["event"]
+    elif currentEvent == 6:
+        rooms[8].update({"people" : [Russell.name]})
+
+        
     
     #get the player's next 'move'
     move = input(">").lower().split()
@@ -296,62 +298,102 @@ while True:
         Inventory()
 
     #if they type 'search'
-    if move[0] == "search":
-        if "search" in rooms[currentRoom]:
-            Search()
-        else:
-            print("You don't find anything interesting.")
-
+    try:
+        if move[0] == "search":
+            #check if the room contains a container, and if that container is the one they want to search.
+            if "search" in rooms[currentRoom] and move[1] == rooms[currentRoom]["search1"]:
+                print("You find a " + rooms[currentRoom]["sitem1"] + " in the " + move[1])
+            elif "search" in rooms[currentRoom] and move[1] == rooms[currentRoom]["search2"]:
+                print("You find a " + rooms[currentRoom]["sitem2"] + " in the " + move[1])
+            elif "search" in rooms[currentRoom] and move[1] == rooms[currentRoom]["search3"]:
+                print("You find a " + rooms[currentRoom]["sitem3"] + " in the " + move[1])
+            elif "search" in rooms[currentRoom] and move[1] == rooms[currentRoom]["search4"]:
+                print("You find a " + rooms[currentRoom]["sitem4"] + " in the " + move[1])
+            elif "search" in rooms[currentRoom] and move[1] == rooms[currentRoom]["search5"]:
+                print("You find a " + rooms[currentRoom]["sitem5"] + " in the " + move[1])
+            else:
+                print("You don't find anything interesting.")
+    except IndexError:
+        print("You have to specify something to search!")
+    except KeyError:
+        print("You have already searched that!")
     
     #if they type 'go' first
-    if move[0] == "go":
-        #check that they are allowed wherever they want to go
-        if move[1] in rooms[currentRoom]:
-            #set the current room to this one.
-            currentRoom = rooms[currentRoom][move[1]]
-            Location()
-            #check to see if this is the first time the player has entered this room.
-            if "first" in rooms[currentRoom]:
-                #if true, print description and directions out of the room. After this, player can call them up with the commands.
-                Description()
-                Directions()
-                del rooms[currentRoom]["first"]
-            #check to see if there are permenant directions.
-            if "permdirections" in rooms[currentRoom]:
-                #if true, print directions out of the room.
-                Directions()
-            #check to see if there is an event in the room the player hasn't already seen.
-            if "event" in rooms[currentRoom]:
-                #if true, set current event to this one.
-                currentEvent = rooms[currentRoom]["event"]
-                Event()
-                del rooms[currentRoom]["event"]
-        #if there is no door (link) to the new room
-        else:
-            print("You can't go that way!")
+    try:
+        if move[0] == "go":
+            #check that they are allowed wherever they want to go
+            if move[1] in rooms[currentRoom]:
+                #set the current room to this one.
+                currentRoom = rooms[currentRoom][move[1]]
+                Location()
+                #check to see if this is the first time the player has entered this room.
+                if "first" in rooms[currentRoom]:
+                    #if true, print description and directions out of the room. After this, player can call them up with the commands.
+                    Description()
+                    Directions()
+                    del rooms[currentRoom]["first"]
+                #check to see if there are permenant directions.
+                if "permdirections" in rooms[currentRoom]:
+                    #if true, print directions out of the room.
+                    Directions()
+                #check to see if there is an event in the room the player hasn't already seen.
+                if "event" in rooms[currentRoom]:
+                    #if true, set current event to this one.
+                    currentEvent = rooms[currentRoom]["event"]
+                    Event()
+                    del rooms[currentRoom]["event"]
+            #if there is no door (link) to the new room
+            else:
+                print("You can't go that way!")
+    except IndexError:
+        print("That isn't a direction!")
+                
 
     #if they type 'take' first
-    if move[0] == "take":
-        #check if the room contains an item, and the item is the one they want to get
-        if "item" in rooms[currentRoom] and move[1] == rooms[currentRoom]["item"]:
-            #add the item to their inventory
-            inventory += [move[1]]
-            #display a success message
-            print("You got the " + str(move[1]) + "!")
-            #delete the item from the room
-            del rooms[currentRoom]["item"]
+    try:
+        if move[0] == "take":
+            #check if the room contains an item, and the item is the one they want to get
+            if "item1" in rooms[currentRoom] and move[1] == rooms[currentRoom]["item1"]:
+                #add the item to their inventory
+                inventory += [move[1]]
+                #display a success message
+                print("You got the " + str(move[1]) + "!")
+                #delete the item from the room
+                del rooms[currentRoom]["item1"]
+            #otherwise, check if the room contains a search item, and the item is the one they want to get
+            elif "sitem1" in rooms[currentRoom] and move[1] == rooms[currentRoom]["sitem1"]:
+                #add the item to their inventory
+                inventory += [move[1]]
+                #display a success message
+                print("You got the " + str(move[1]) + "!")
+                #delete the item from the room
+                del rooms[currentRoom]["sitem1"]        
+            #otherwise, if the item isn't there to get
+            else:
+                #tell them they can't get it
+                print("There isn't a " + move[1] + " to take!")
+    except IndexError:
+        print("You can't take that!")
 
-        #otherwise, check if the room contains a search item, and the item is the one they want to get
-        elif "search item" in rooms[currentRoom] and move[1] == rooms[currentRoom]["search item"]:
-            #add the item to their inventory
-            inventory += [move[1]]
-            #display a success message
-            print("You got the " + str(move[1]) + "!")
-            #delete the item from the room
-            del rooms[currentRoom]["search item"]
-            del rooms[currentRoom]["search"]
-            
-        #otherwise, if the item isn't there to get
-        else:
-            #tell them they can't get it
-            print("There isn't a " + move[1] + " to take!")
+    #if they type 'inspect' first
+    try:
+        if move[0] == "inspect":
+            #check to see if the room contains an object, and if the object is the one they want to inspect.
+            if "object1" in rooms[currentRoom] and move[1] == rooms[currentRoom]["object1"]:
+                #display the object's description.
+                print(rooms[currentRoom]["obj1des"])
+            elif "object2" in rooms[currentRoom] and move[1] == rooms[currentRoom]["object2"]:
+                print(rooms[currentRoom]["obj2des"])
+            elif "object3" in rooms[currentRoom] and move[1] == rooms[currentRoom]["object3"]:
+                print(rooms[currentRoom]["obj3des"])
+            elif "object4" in rooms[currentRoom] and move[1] == rooms[currentRoom]["object4"]:
+                print(rooms[currentRoom]["obj4des"])
+            elif "object5" in rooms[currentRoom] and move[1] == rooms[currentRoom]["object5"]:
+                print(rooms[currentRoom]["obj5des"])
+            #otherwise, if the object isn't there to inspect.
+            else:
+                #tell them there isn't that object.
+                print("There isn't a " + move[1] + " to inspect!")
+    except IndexError:
+        print("You can't inspect that!")
+                
